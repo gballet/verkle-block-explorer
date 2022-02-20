@@ -6,8 +6,8 @@ require 'json'
 
 uri = URI.parse('http://localhost:8545/verkle')
 http = Net::HTTP.new(uri.host, uri.port)
-request = Net::HTTP::Post.new(uri.request_uri, 
-          'Content-Type' => 'application/json')
+request = Net::HTTP::Post.new(uri.request_uri,
+                              'Content-Type' => 'application/json')
 request.body = '{"method":"eth_blockNumber","params":[],"id":1,"jsonrpc":"2.0"}'
 resp = http.request(request)
 
@@ -18,7 +18,8 @@ num = data['result'].hex
 puts "latest block number = #{num}"
 
 num.times do |bnum|
-  next if bnum == 0
   request.body = '{"method":"eth_getBlockNumber","params":["' + format("%#x", bnum) + '"],"id":1,"jsonrpc":"2.0"}'
+  next if bnum.zero?
+
   resp = http.request(request)
 end
