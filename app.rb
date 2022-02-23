@@ -3,6 +3,7 @@ require 'sinatra'
 require 'sinatra/reloader'
 require 'markaby'
 require 'sinatra/activerecord'
+require 'rlp-ruby'
 
 require './models/block'
 

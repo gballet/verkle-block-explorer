@@ -6,7 +6,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 # gem "rails"
 
-gem "rlp-ruby", "~> 0.1.0"
+gem "rlp-ruby", git: 'https://github.com/gballet/rlp-ruby', branch: 'fix-block-decoding'
 
 gem "sinatra", "~> 2.2"
 
