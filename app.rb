@@ -37,7 +37,7 @@ end
 
 # Show a block
 get '/blocks/:number_or_hash' do
-  block = case params[:number_or_hash]
+  db_block = case params[:number_or_hash]
           when /[a-fA-F0-9]{64}/ # Block hash
             Block.find_by(hash: params[:number_or_hash])
           when /\d+/ # Block number
@@ -45,6 +45,8 @@ get '/blocks/:number_or_hash' do
           else
             raise 'invalid input'
           end
+
+  block, _ = RLP.decoder(db_block.rlp.bytes)
 
   markaby do
     h1 "Block #{block.number}"
