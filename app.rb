@@ -26,8 +26,8 @@ get '/' do
 
       last_blocks.each do |block|
         tr do
-          td { a block.number, href: "/block/#{block.number}" }
-          td { a block.hash, href: "/block/#{block.hash}" }
+          td { a block.number, href: "/blocks/#{block.number}" }
+          td { a block.hash, href: "/blocks/#{block.hash}" }
         end
       end
     end
@@ -35,13 +35,23 @@ get '/' do
 end
 
 # Show a block
-get '/block/:number_or_hash' do
-  block_rlp = case params[:number_or_hash]
-              when /[a-fA-F0-9]{64}/ # Block hash
-                Block.find_by(hash: params[:number_or_hash])
-              when /\d+/ # Block number
-                Block.find(params[:number_or_hash].to_i)
-              else
-                raise 'invalid input'
-              end
+get '/blocks/:number_or_hash' do
+  block = case params[:number_or_hash]
+          when /[a-fA-F0-9]{64}/ # Block hash
+            Block.find_by(hash: params[:number_or_hash])
+          when /\d+/ # Block number
+            Block.find(params[:number_or_hash].to_i)
+          else
+            raise 'invalid input'
+          end
+
+  markaby do
+    h1 "Block #{block.number}"
+
+    p "Hash: #{block.hash}"
+  end
+end
+
+post '/search' do
+  redirect "/blocks/#{params['search']}"
 end
