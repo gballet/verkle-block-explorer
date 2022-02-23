@@ -81,6 +81,21 @@ get '/blocks/:number_or_hash' do
 
     p block[16].inspect
 
+    h3 '(key, value) list'
+
+    table do
+      tr do
+        th 'Key'
+        th 'Value'
+      end
+      block[17].each do |(key,value)|
+        tr do
+          td key.inspect
+          td value.inspect
+        end
+      end
+    end
+
     h2 'Transaction List'
 
     table do
