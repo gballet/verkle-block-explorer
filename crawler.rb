@@ -3,8 +3,11 @@
 require 'net/http'
 require 'uri'
 require 'json'
+require 'sinatra/activerecord'
 
-uri = URI.parse('http://localhost:8545/verkle')
+require './models/block'
+
+uri = URI.parse('http://rpc.condrieu.ethdevops.io:8545')
 http = Net::HTTP.new(uri.host, uri.port)
 request = Net::HTTP::Post.new(uri.request_uri,
                               'Content-Type' => 'application/json')
@@ -18,8 +21,24 @@ num = data['result'].hex
 puts "latest block number = #{num}"
 
 num.times do |bnum|
-  request.body = '{"method":"eth_getBlockNumber","params":["' + format("%#x", bnum) + '"],"id":1,"jsonrpc":"2.0"}'
   next if bnum.zero?
 
+  req_body = {
+    method: 'debug_getBlockRlp',
+    params: [bnum],
+    id: 1,
+    jsonrpc: '2.0'
+  }
+  request.body = req_body.to_json
+
   resp = http.request(request)
+  raise("request failed #{resp.code.class}") if resp.code.to_i != 200
+
+  block_rlp = JSON.parse(resp.body)['result'].gsub('0x', '').split('').each_slice(2).map(&:join).map(&:hex).map(&:chr).join('')
+  block = Block.new do |b|
+    b.number = bnum
+    #b.hash = 0
+    b.rlp = block_rlp
+  end
+  block.save
 end

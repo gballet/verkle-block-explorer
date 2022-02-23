@@ -13,10 +13,7 @@
 ActiveRecord::Schema[7.0].define(version: 2022_02_23_082307) do
   create_table "blocks", force: :cascade do |t|
     t.integer "number"
-    t.string "hash"
     t.binary "rlp"
-    t.index ["hash"], name: "hash_index"
-    t.index ["number"], name: "number_index"
   end
 
 end

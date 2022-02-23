@@ -4,6 +4,8 @@ require 'sinatra/reloader'
 require 'markaby'
 require 'sinatra/activerecord'
 
+require './models/block'
+
 # Home page
 get '/' do
   last_blocks = []
