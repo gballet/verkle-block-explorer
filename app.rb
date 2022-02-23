@@ -49,9 +49,42 @@ get '/blocks/:number_or_hash' do
   block, _ = RLP.decoder(db_block.rlp.bytes)
 
   markaby do
-    h1 "Block #{block.number}"
+    h1 "Block #{db_block.number}"
 
-    p "Hash: #{block.hash}"
+    #p "Hash: #{block.hash}"
+
+    h2 'Header'
+
+    table do
+      tr do
+        td 'Parent hash:'
+        td block[0]
+      end
+
+      tr do
+        td 'Coinbase:'
+        td block[2]
+      end
+
+      tr do
+        td 'Gas Limit:'
+        td block[9]
+      end
+
+      tr do
+        td 'Gas Used:'
+        td block[10]
+      end
+    end
+
+    h2 'Verkle proof'
+
+    p block[16].inspect
+
+    h2 'Transaction List'
+
+    table do
+    end
   end
 end
 
