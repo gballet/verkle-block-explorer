@@ -35,10 +35,20 @@ num.times do |bnum|
   raise("request failed #{resp.code.class}") if resp.code.to_i != 200
 
   block_rlp = JSON.parse(resp.body)['result'].gsub('0x', '').split('').each_slice(2).map(&:join).map(&:hex).map(&:chr).join('')
+  puts block_rlp
   block = Block.new do |b|
     b.number = bnum
     #b.hash = 0
     b.rlp = block_rlp
   end
   block.save
+  #puts result.inspect
+  #block = RLP.decode(result)
+  #puts block
+  ##block = RLP.decode(resp.body.split('').each_slice(2).map(&:join).map(&:hex), sedes: RLP::Sedes.raw)
+  #if block.length >= 17
+    #puts "proof=#{block[16]} keys=#{block[17]}"
+  #else
+    #puts "block #{bnum} doesn't seem to have a proof"
+  #end
 end
