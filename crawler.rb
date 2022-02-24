@@ -23,6 +23,7 @@ puts "latest block number = #{num}"
 # Get the latest block found
 last_block_num = Block.count == 0 ? 0 : Block.order('number DESC').first.number
 
+count = 0
 (last_block_num + 1..num).each do |bnum|
   next if bnum.zero?
 
@@ -47,4 +48,8 @@ last_block_num = Block.count == 0 ? 0 : Block.order('number DESC').first.number
  
   # save the content
   block.save
+
+  # only grab a maximum of 1000 blocks at a time
+  break if count == 1000
+  count += 1
 end
