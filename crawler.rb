@@ -20,7 +20,10 @@ data = JSON.parse(resp.body)
 num = data['result'].hex
 puts "latest block number = #{num}"
 
-num.times do |bnum|
+# Get the latest block found
+last_block_num = Block.count == 0 ? 0 : Block.order('number DESC').first.number
+
+(last_block_num + 1..num).each do |bnum|
   next if bnum.zero?
 
   req_body = {
@@ -41,14 +44,7 @@ num.times do |bnum|
     #b.hash = 0
     b.rlp = block_rlp
   end
+ 
+  # save the content
   block.save
-  #puts result.inspect
-  #block = RLP.decode(result)
-  #puts block
-  ##block = RLP.decode(resp.body.split('').each_slice(2).map(&:join).map(&:hex), sedes: RLP::Sedes.raw)
-  #if block.length >= 17
-    #puts "proof=#{block[16]} keys=#{block[17]}"
-  #else
-    #puts "block #{bnum} doesn't seem to have a proof"
-  #end
 end
