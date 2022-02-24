@@ -5,11 +5,14 @@ require 'uri'
 require 'json'
 require 'sinatra/activerecord'
 require 'rlp-ruby'
+require 'yaml'
 
 require './models/block'
 require './models/tx'
 
-uri = URI.parse('http://rpc.condrieu.ethdevops.io:8545')
+cfg = YAML.load(File.read('config.yml'))
+
+uri = URI.parse(cfg['rpc'])
 http = Net::HTTP.new(uri.host, uri.port)
 request = Net::HTTP::Post.new(uri.request_uri,
                               'Content-Type' => 'application/json')
