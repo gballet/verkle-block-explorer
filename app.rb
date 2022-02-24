@@ -58,7 +58,7 @@ get '/blocks/:number_or_hash' do
              else
                raise 'invalid input'
              end
-  db_block.txs.load
+  db_block.txes.load
 
   # Get the number of the last block
   last_block_num = Block.count == 0 ? 0 : Block.order('number DESC').first.number
