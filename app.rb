@@ -6,6 +6,19 @@ require 'sinatra/activerecord'
 require 'rlp-ruby'
 
 require './models/block'
+require './models/tx'
+
+def le_bytes(ary)
+  ary.reverse.reduce(0) { |a,b| a *= 256; a += b; a }
+end
+
+def be_bytes(ary)
+  ary.reduce(0) { |a,b| a *= 256; a += b; a }
+end
+
+def to_hex(ary)
+  ary.reduce("0x") { |s,b| s+format("%02x", b) }
+end
 
 # Home page
 get '/' do
@@ -46,7 +59,7 @@ get '/blocks/:number_or_hash' do
             raise 'invalid input'
           end
 
-  block, _ = RLP.decoder(db_block.rlp.bytes)
+  header, txs = RLP.decoder(db_block.rlp.bytes)
 
   markaby do
     h1 "Block #{db_block.number}"
@@ -58,28 +71,28 @@ get '/blocks/:number_or_hash' do
     table do
       tr do
         td 'Parent hash:'
-        td block[0]
+        td to_hex(header[0])
       end
 
       tr do
         td 'Coinbase:'
-        td block[2]
+        td to_hex(header[2])
       end
 
       tr do
         td 'Gas Limit:'
-        td block[9]
+        td be_bytes(header[9])
       end
 
       tr do
         td 'Gas Used:'
-        td block[10]
+        td be_bytes(header[10])
       end
     end
 
     h2 'Verkle proof'
 
-    p block[16].inspect
+    p to_hex(header[16])
 
     h3 '(key, value) list'
 
@@ -88,10 +101,10 @@ get '/blocks/:number_or_hash' do
         th 'Key'
         th 'Value'
       end
-      block[17].each do |(key,value)|
+      header[17].each do |(key,value)|
         tr do
-          td key.inspect
-          td value.inspect
+          td to_hex(key)
+          td le_bytes(value)
         end
       end
     end
@@ -99,6 +112,11 @@ get '/blocks/:number_or_hash' do
     h2 'Transaction List'
 
     table do
+      txs.each do |tx|
+        tr do
+          td span tx.tx_hash
+        end
+      end
     end
   end
 end

@@ -4,8 +4,10 @@ require 'net/http'
 require 'uri'
 require 'json'
 require 'sinatra/activerecord'
+require 'rlp-ruby'
 
 require './models/block'
+require './models/tx'
 
 uri = URI.parse('http://rpc.condrieu.ethdevops.io:8545')
 http = Net::HTTP.new(uri.host, uri.port)
@@ -44,6 +46,14 @@ count = 0
     b.number = bnum
     #b.hash = 0
     b.rlp = block_rlp
+  end
+
+  # Process the transactions
+  _, txs = RLP.decoder(block.rlp.bytes)
+  txs.each do |tx_hash|
+    block.txs << Tx.new do |db_tx|
+      db_tx.tx_hash= tx_hash
+    end
   end
  
   # save the content

@@ -10,10 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_02_23_082307) do
+ActiveRecord::Schema[7.0].define(version: 2022_02_24_075545) do
   create_table "blocks", force: :cascade do |t|
     t.integer "number"
     t.binary "rlp"
   end
 
+  create_table "txs", force: :cascade do |t|
+    t.integer "block_id"
+    t.binary "tx_hash"
+    t.index ["block_id"], name: "index_txs_on_block_id"
+  end
+
+  add_foreign_key "txs", "blocks"
 end
