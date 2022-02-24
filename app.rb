@@ -58,6 +58,7 @@ get '/blocks/:number_or_hash' do
              else
                raise 'invalid input'
              end
+  db_block.txs.load
 
   # Get the number of the last block
   last_block_num = Block.count == 0 ? 0 : Block.order('number DESC').first.number
@@ -76,7 +77,7 @@ get '/blocks/:number_or_hash' do
     table do
       tr do
         td 'Parent hash:'
-        td to_hex(header[0])
+        td { a to_hex(header[0]), href: "/blocks/#{to_hex header[0]}" }
       end
 
       tr do
@@ -119,7 +120,7 @@ get '/blocks/:number_or_hash' do
     table do
       txs.each do |tx|
         tr do
-          td span tx.tx_hash
+          td to_hex(tx)
         end
       end
     end

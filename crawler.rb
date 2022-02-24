@@ -51,7 +51,7 @@ count = 0
   # Process the transactions
   _, txs = RLP.decoder(block.rlp.bytes)
   txs.each do |tx_hash|
-    block.txs << Tx.new do |db_tx|
+    block.txes << Tx.new do |db_tx|
       db_tx.tx_hash= tx_hash
     end
   end
