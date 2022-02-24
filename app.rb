@@ -22,7 +22,7 @@ end
 
 # Home page
 get '/' do
-  last_blocks = []
+  last_blocks = Block.order("number DESC").limit(10)
 
   markaby do
     h1 'Condrieu block explorer'
@@ -58,6 +58,9 @@ get '/blocks/:number_or_hash' do
              else
                raise 'invalid input'
              end
+
+  # Get the number of the last block
+  last_block_num = Block.count == 0 ? 0 : Block.order('number DESC').first.number
 
   header, txs = RLP.decoder(db_block.rlp.bytes)
 
@@ -121,7 +124,9 @@ get '/blocks/:number_or_hash' do
       end
     end
 
-    a "Block #{number - 1}", href: "/blocks/#{number-1}" if number.positive?
+    a "< Block #{number - 1}", href: "/blocks/#{number - 1}" if number.positive?
+    span '|'
+    a "Block #{number + 1} >", href: "/blocks/#{number + 1}" if number < last_block_num
   end
 
 end
