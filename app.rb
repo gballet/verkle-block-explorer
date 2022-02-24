@@ -51,15 +51,17 @@ end
 # Show a block
 get '/blocks/:number_or_hash' do
   db_block = case params[:number_or_hash]
-          when /[a-fA-F0-9]{64}/ # Block hash
-            Block.find_by(hash: params[:number_or_hash])
-          when /\d+/ # Block number
-            Block.find(params[:number_or_hash].to_i)
-          else
-            raise 'invalid input'
-          end
+             when /[a-fA-F0-9]{64}/ # Block hash
+               Block.find_by(hash: params[:number_or_hash])
+             when /\d+/ # Block number
+               Block.find_by(number: params[:number_or_hash].to_i)
+             else
+               raise 'invalid input'
+             end
 
   header, txs = RLP.decoder(db_block.rlp.bytes)
+
+  number = be_bytes(header[8])
 
   markaby do
     h1 "Block #{db_block.number}"
@@ -118,7 +120,10 @@ get '/blocks/:number_or_hash' do
         end
       end
     end
+
+    a "Block #{number - 1}", href: "/blocks/#{number-1}" if number.positive?
   end
+
 end
 
 post '/search' do
