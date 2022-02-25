@@ -135,9 +135,9 @@ get '/blocks/:number_or_hash' do
     end
 
     a "< Block #{number - 1}", href: "/blocks/#{number - 1}" if number.positive?
-    span '|'
+    span ' | '
     a 'Home', href: '/'
-    span '|'
+    span ' | '
     a "Block #{number + 1} >", href: "/blocks/#{number + 1}" if number < last_block_num
   end
 end
