@@ -11,6 +11,8 @@ require 'digest/keccak'
 require './models/block'
 require './models/tx'
 
+require './proof'
+
 cfg = YAML.load(File.read('config.yml'))
 
 def le_bytes(ary)
@@ -75,6 +77,8 @@ get '/blocks/:number_or_hash' do
   header, txs = RLP.decoder(db_block.rlp.bytes)
 
   number = be_bytes(header[8])
+
+  proof = VerkleProof.parse header[16]
 
   markaby do
     h1 "Block #{db_block.number}"
