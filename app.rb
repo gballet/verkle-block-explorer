@@ -11,6 +11,8 @@ require 'digest/keccak'
 require './models/block'
 require './models/tx'
 
+cfg = YAML.load(File.read('config.yml'))
+
 def le_bytes(ary)
   be_bytes ary.reverse
 end
@@ -32,7 +34,7 @@ get '/' do
   last_blocks = Block.order('number DESC').limit(10)
 
   markaby do
-    h1 'Condrieu block explorer'
+    h1 "#{cfg['network_name'].capitalize} block explorer"
 
     form action: 'search', method: 'POST' do
       input id: 'searchterm', type: 'text', placeholder: 'Enter a block number or hash'
