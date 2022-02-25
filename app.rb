@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'sinatra'
 require 'sinatra/reloader'
 require 'markaby'
@@ -66,7 +68,7 @@ get '/blocks/:number_or_hash' do
   db_block.txes.load
 
   # Get the number of the last block
-  last_block_num = Block.count == 0 ? 0 : Block.order('number DESC').first.number
+  last_block_num = Block.count.zero? ? 0 : Block.order('number DESC').first.number
 
   header, txs = RLP.decoder(db_block.rlp.bytes)
 
@@ -112,7 +114,7 @@ get '/blocks/:number_or_hash' do
         th 'Key'
         th 'Value'
       end
-      header[17].each do |(key,value)|
+      header[17].each do |(key, value)|
         tr do
           td to_hex(key)
           td le_bytes(value)
