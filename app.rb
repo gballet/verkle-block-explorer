@@ -143,5 +143,5 @@ get '/blocks/:number_or_hash' do
 end
 
 post '/search' do
-  redirect "/blocks/#{params['search']}"
+  redirect "/blocks/#{params['searchterm']}"
 end
