@@ -111,7 +111,10 @@ get '/blocks/:number_or_hash' do
 
     h2 'Verkle proof'
 
-    p to_hex(header[16])
+    p "extension statuses: #{proof.esses}"
+    p "depths: #{proof.depths}"
+    p "poas: #{proof.poas}"
+    p "commitments: #{proof.comms.map { |c| be_bytes c } }"
 
     h3 '(key, value) list'
 
