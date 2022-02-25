@@ -9,20 +9,24 @@ require './models/block'
 require './models/tx'
 
 def le_bytes(ary)
-  ary.reverse.reduce(0) { |a,b| a *= 256; a += b; a }
+  be_bytes ary.reverse
 end
 
 def be_bytes(ary)
-  ary.reduce(0) { |a,b| a *= 256; a += b; a }
+  ary.reduce(0) do |a, b|
+    a *= 256
+    a += b
+    a
+  end
 end
 
 def to_hex(ary)
-  ary.reduce("0x") { |s,b| s+format("%02x", b) }
+  ary.reduce('0x') { |s, b| s + format('%02x', b) }
 end
 
 # Home page
 get '/' do
-  last_blocks = Block.order("number DESC").limit(10)
+  last_blocks = Block.order('number DESC').limit(10)
 
   markaby do
     h1 'Condrieu block explorer'
