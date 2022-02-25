@@ -19,3 +19,5 @@ gem "sqlite3", "~> 1.4"
 group :development, optional: true do
   gem 'irb', '~> 1.4', require: false
 end
+
+gem "digest-keccak", "~> 0.0.5"
