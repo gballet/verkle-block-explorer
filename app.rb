@@ -52,7 +52,7 @@ get '/' do
       last_blocks.each do |block|
         tr do
           td { a block.number, href: "/blocks/#{block.number}" }
-          td { a block.hash, href: "/blocks/#{block.hash}" }
+          td { a block.block_hash, href: "/blocks/#{block.block_hash}" }
         end
       end
     end

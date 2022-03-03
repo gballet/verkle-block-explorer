@@ -10,6 +10,10 @@ require 'yaml'
 require './models/block'
 require './models/tx'
 
+def from_hex(hex)
+  [hex].pack("H*")[1..]
+end
+
 cfg = YAML.load(File.read('config.yml'))
 
 uri = URI.parse(cfg['rpc'])
@@ -46,9 +50,20 @@ count = 0
   block_rlp = JSON.parse(resp.body)['result'].gsub('0x', '').split('').each_slice(2).map(&:join).map(&:hex).map(&:chr).join('')
   block = Block.new do |b|
     b.number = bnum
-    #b.hash = 0
     b.rlp = block_rlp
   end
+
+  # Get the block hash as well
+  req_body = {
+    method: 'eth_getBlockByNumber',
+    params: [format('%#x', bnum), false],
+    id: 1,
+    jsonrpc: '2.0'
+  }
+  request.body = req_body.to_json
+  resp = http.request(request)
+  raise("request failed #{resp.code.class}") if resp.code.to_i != 200
+  block.block_hash = from_hex(JSON.parse(resp.body)['result']['hash'])
 
   # Process the transactions
   _, txs = RLP.decoder(block.rlp.bytes)
@@ -62,6 +77,6 @@ count = 0
   block.save
 
   # only grab a maximum of 1000 blocks at a time
-  break if count == 1000
+  break if count == 700
   count += 1
 end
