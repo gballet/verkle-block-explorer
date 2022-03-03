@@ -12,6 +12,7 @@ require './models/block'
 require './models/tx'
 
 require './proof'
+require './utils'
 
 cfg = YAML.load(File.read('config.yml'))
 
@@ -52,7 +53,7 @@ get '/' do
       last_blocks.each do |block|
         tr do
           td { a block.number, href: "/blocks/#{block.number}" }
-          td { a block.block_hash, href: "/blocks/#{block.block_hash}" }
+          td { a to_hex(block.block_hash.bytes), href: "/blocks/#{to_hex(block.block_hash.bytes)}" }
         end
       end
     end
@@ -63,7 +64,7 @@ end
 get '/blocks/:number_or_hash' do
   db_block = case params[:number_or_hash]
              when /[a-fA-F0-9]{64}/ # Block hash
-               Block.find_by(hash: params[:number_or_hash])
+               Block.find_by(block_hash: from_hex(params[:number_or_hash]))
              when /\d+/ # Block number
                Block.find_by(number: params[:number_or_hash].to_i)
              else

@@ -9,10 +9,7 @@ require 'yaml'
 
 require './models/block'
 require './models/tx'
-
-def from_hex(hex)
-  [hex].pack("H*")[1..]
-end
+require './utils'
 
 cfg = YAML.load(File.read('config.yml'))
 
