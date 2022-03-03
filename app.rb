@@ -13,6 +13,7 @@ require './models/tx'
 
 require './proof'
 require './utils'
+require './tree'
 
 cfg = YAML.load(File.read('config.yml'))
 
@@ -26,10 +27,6 @@ def be_bytes(ary)
     a += b
     a
   end
-end
-
-def to_hex(ary)
-  ary.reduce('0x') { |s, b| s + format('%02x', b) }
 end
 
 # Home page
@@ -84,6 +81,11 @@ get '/blocks/:number_or_hash' do
   number = header[8].is_a?(Array) ? be_bytes(header[8]) : header[8].to_i
 
   proof = VerkleProof.parse header[16]
+  # Insert the values in the tree
+  tree = Node.new(0, false, nil)
+  db_block.witness_keyvals.each do |key, value|
+    tree.insert(key, value)
+  end
 
   markaby do
     h1 "Block #{db_block.number}"
