@@ -76,7 +76,9 @@ get '/blocks/:number_or_hash' do
 
   header, txs = RLP.decoder(db_block.rlp.bytes)
 
-  number = be_bytes(header[8])
+  # block number: convert to number if big-endian byte array, otherwise
+  # assume this is a number < 128 and just use it as a number.
+  number = header[8].is_a?(Array) ? be_bytes(header[8]) : header[8].to_i
 
   proof = VerkleProof.parse header[16]
 
