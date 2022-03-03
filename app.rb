@@ -70,6 +70,8 @@ get '/blocks/:number_or_hash' do
              else
                raise 'invalid input'
              end
+  raise Sinatra::NotFound if db_block.nil?
+
   db_block.txes.load
 
   # Get the number of the last block
