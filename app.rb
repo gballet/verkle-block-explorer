@@ -80,13 +80,17 @@ get '/blocks/:number_or_hash' do
   # assume this is a number < 128 and just use it as a number.
   number = header[8].is_a?(Array) ? be_bytes(header[8]) : header[8].to_i
 
-  proof = VerkleProof.parse header[16]
+  proof = db_block.verkle_proof
   # Insert the values in the tree
   tree = Node.new(0, false, nil)
   db_block.witness_keyvals.each do |key, value|
     tree.insert(key, value)
   end
 
+  # Get the state root commitment from the
+  # previous block
+  prev_root = Block.find_by!(number: last_block_num).root
+  tree.set_comms([prev_root] + proof.comms)
   markaby do
     h1 "Block #{db_block.number}"
 
@@ -102,7 +106,7 @@ get '/blocks/:number_or_hash' do
 
       tr do
         td 'Coinbase:'
-        td to_hex(header[2])
+        td to_hex(db_block.coinbase)
       end
 
       tr do
