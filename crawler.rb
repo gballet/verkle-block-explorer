@@ -43,7 +43,6 @@ count = 0
     jsonrpc: '2.0'
   }
   request.body = req_body.to_json
-
   resp = http.request(request)
   raise("request failed #{resp.code.class}") if resp.code.to_i != 200
 
@@ -69,14 +68,15 @@ count = 0
   _, txs = RLP.decoder(block.rlp.bytes)
   txs.each do |tx_hash|
     block.txes << Tx.new do |db_tx|
-      db_tx.tx_hash= tx_hash
+      db_tx.tx_hash = tx_hash
     end
   end
- 
+
   # save the content
   block.save
 
   # only grab a maximum of 1000 blocks at a time
   break if count == 700
+
   count += 1
 end
