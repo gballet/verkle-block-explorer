@@ -125,7 +125,7 @@ get '/blocks/:number_or_hash' do
     p "extension statuses: #{proof.esses}"
     p "depths: #{proof.depths}"
     p "poas: #{proof.poas}"
-    p "commitments: #{proof.comms.map { |c| be_bytes c } }"
+    p "commitments: #{proof.comms.map { |c| be_bytes c }}"
 
     h3 '(key, value) list'
 

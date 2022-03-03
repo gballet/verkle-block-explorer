@@ -42,8 +42,14 @@ count = 0
   request.body = req_body.to_json
   resp = http.request(request)
   raise("request failed #{resp.code.class}") if resp.code.to_i != 200
-
-  block_rlp = JSON.parse(resp.body)['result'].gsub('0x', '').split('').each_slice(2).map(&:join).map(&:hex).map(&:chr).join('')
+  block_rlp = JSON.parse(resp.body)['result']
+                  .gsub('0x', '')
+                  .split('')
+                  .each_slice(2)
+                  .map(&:join)
+                  .map(&:hex)
+                  .map(&:chr)
+                  .join('')
   block = Block.new do |b|
     b.number = bnum
     b.rlp = block_rlp
