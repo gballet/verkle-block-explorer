@@ -44,7 +44,6 @@ count = 0
   raise("request failed #{resp.code.class}") if resp.code.to_i != 200
 
   block_rlp = JSON.parse(resp.body)['result'].gsub('0x', '').split('').each_slice(2).map(&:join).map(&:hex).map(&:chr).join('')
-  puts block_rlp
   block = Block.new do |b|
     b.number = bnum
     #b.hash = 0
