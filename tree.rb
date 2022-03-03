@@ -58,4 +58,29 @@ class Node
       rest
     end
   end
+
+  def to_dot(path, parent)
+    ret = ''
+    if leaf?
+      name = "ext_#{path}_#{to_hex @extension, true}"
+      ret += parent.empty? ? "#{parent} -> #{name}\n" : ''
+      ret += "#{name} [label=\"#{to_hex(@extension)} #{to_hex(@commitment)}\"]\n"
+      ret += "#{name} -> #{name}_c1\n" if @c1
+      ret += "#{name} -> #{name}_c2\n" if @c2
+      @values.each do |suffix, value|
+        ret += <<~LEAF
+          val_#{path}_#{to_hex(@extension, true)}_#{suffix} [label=\"#{to_hex(value)}\"]
+          #{name}_c#{1 + suffix / 128} -> val_#{path}_#{to_hex(@extension, true)}_#{suffix}
+        LEAF
+      end
+    else
+      name = parent.empty? ? 'root' : "int_#{path}"
+      ret += "#{name} [label=\"#{@commitment}\"]\n"
+      ret += parent.empty? ? '' : "#{parent} -> #{name}\n"
+      @children.each do |num, node|
+        ret += node.to_dot("#{path}#{num}", name)
+      end
+    end
+    ret
+  end
 end
