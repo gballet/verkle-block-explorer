@@ -15,6 +15,21 @@ class Block < ActiveRecord::Base
     @decoded_header[2]
   end
 
+  def parent_hash
+    decode_rlp if @decoded_header.nil?
+    @decoded_header[0]
+  end
+
+  def gas_limit
+    decode_rlp if @decoded_header.nil?
+    @decoded_header[9]
+  end
+
+  def gas_used
+    decode_rlp if @decoded_header.nil?
+    @decoded_header[10]
+  end
+
   def verkle_proof
     decode_rlp if @decoded_header.nil?
     VerkleProof.parse @decoded_header[16]

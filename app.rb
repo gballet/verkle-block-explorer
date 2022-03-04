@@ -75,11 +75,6 @@ get '/blocks/:number_or_hash' do
   # Get the number of the last block
   last_block_num = Block.count.zero? ? 0 : Block.order('number DESC').first.number
 
-  header, txs = RLP.decoder(db_block.rlp.bytes)
-
-  # block number: convert to number if big-endian byte array, otherwise
-  # assume this is a number < 128 and just use it as a number.
-  number = header[8].is_a?(Array) ? be_bytes(header[8]) : header[8].to_i
 
   proof = db_block.verkle_proof
   # Insert the values in the tree
@@ -107,14 +102,13 @@ get '/blocks/:number_or_hash' do
   markaby do
     h1 "Block #{db_block.number}"
 
-    #p "Hash: #{block.hash}"
 
     h2 'Header'
 
     table do
       tr do
         td 'Parent hash:'
-        td { a to_hex(header[0]), href: "/blocks/#{to_hex header[0]}" }
+        td { a to_hex(db_block.parent_hash), href: "/blocks/#{to_hex db_block.parent_hash}" }
       end
 
       tr do
@@ -124,12 +118,12 @@ get '/blocks/:number_or_hash' do
 
       tr do
         td 'Gas Limit:'
-        td be_bytes(header[9])
+        td be_bytes(db_block.gas_limit)
       end
 
       tr do
         td 'Gas Used:'
-        td be_bytes(header[10])
+        td be_bytes(db_block.gas_used)
       end
     end
 
@@ -149,7 +143,7 @@ get '/blocks/:number_or_hash' do
         th 'Key'
         th 'Value'
       end
-      header[17].each do |(key, value)|
+      db_block.witness_keyvals.each do |(key, value)|
         tr do
           td to_hex(key)
           td le_bytes(value)
@@ -160,18 +154,18 @@ get '/blocks/:number_or_hash' do
     h2 'Transaction List'
 
     table do
-      txs.each do |tx|
+      db_block.txes.each do |tx|
         tr do
           td Digest::Keccak.hexdigest(tx.map(&:chr).join(''), 256)
         end
       end
     end
 
-    a "< Block #{number - 1}", href: "/blocks/#{number - 1}" if number.positive?
+    a "< Block #{db_block.number - 1}", href: "/blocks/#{db_block.number - 1}" if db_block.number.positive?
     span ' | '
     a 'Home', href: '/'
     span ' | '
-    a "Block #{number + 1} >", href: "/blocks/#{number + 1}" if number < last_block_num
+    a "Block #{db_block.number + 1} >", href: "/blocks/#{db_block.number + 1}" if db_block.number < last_block_num
   end
 end
 
