@@ -44,19 +44,27 @@ class Node
     @children.nil?
   end
 
+  # Associate the list of commitments from the proof, to a
+  # rebuilt tree.
   def set_comms(comms)
     @commitment, *rest = comms
+
     if leaf?
+      # Associate a commitment to C1 and/or C2, if present
       @values.keys.sort.each do |suffix|
+        # Capture the commitment of a suffix tree the
+        # first time a new value 'opens' that suffix
+        # tree.
         @c1, *rest = rest if suffix < 128 && @c1.nil?
         @c2, *rest = rest if suffix >= 128 && @c2.nil?
       end
     else
       @children.keys.sort.each do |key|
+        # Recurse into children nodes.
         rest = @children[key].set_comms rest
       end
-      rest
     end
+    rest
   end
 
   def to_dot(path, parent)
@@ -64,12 +72,12 @@ class Node
     if leaf?
       name = "ext_#{path}_#{to_hex @extension, true}"
       ret += parent.empty? ? '' : "#{parent} -> #{name} [label=\"#{path[-2..-1]}\"]\n"
-      ret += "#{name} [label=\"#{to_hex(@extension)} #{to_hex(@commitment)}\"]\n"
+      ret += "#{name} [label=\"ext=#{to_hex(@extension)}\\ncomm=#{to_hex(@commitment)}\"]\n"
       ret += "#{name}_c1 [label=\"#{to_hex(@c1)}\"]\n#{name} -> #{name}_c1 [label=\"2\"]\n" if @c1
       ret += "#{name}_c2 [label=\"#{to_hex(@c2)}\"]\n#{name} -> #{name}_c2 [label=\"3\"]\n" if @c2
       @values.each do |suffix, value|
         ret += <<~LEAF
-          val_#{path}_#{to_hex(@extension, true)}_#{suffix} [label=\"#{to_hex(value)}\"]
+          val_#{path}_#{to_hex(@extension, true)}_#{suffix} [label=\"#{hex_label value}\"]
           #{name}_c#{1 + suffix / 128} -> val_#{path}_#{to_hex(@extension, true)}_#{suffix} [label="#{suffix}"]
         LEAF
       end
@@ -82,5 +90,19 @@ class Node
       end
     end
     ret
+  end
+
+  private
+
+  # displays a label containing a hex number, and perform
+  # some extra formatting:
+  #  * replaces trailing 0s with 0...
+  #  * replaces `NULL` values with `∅`
+  def hex_label(item)
+    if item.nil? || item.empty?
+      '∅'
+    else
+      to_hex(item, false).gsub(/00(0{2})+$/, '00...')
+    end
   end
 end
