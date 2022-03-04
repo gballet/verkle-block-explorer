@@ -7,6 +7,7 @@ require 'markaby'
 require 'sinatra/activerecord'
 require 'rlp-ruby'
 require 'digest/keccak'
+require 'base64'
 
 require './models/block'
 require './models/tx'
@@ -91,6 +92,18 @@ get '/blocks/:number_or_hash' do
   # previous block
   prev_root = Block.find_by!(number: last_block_num).root
   tree.set_comms([prev_root] + proof.comms)
+  prestate_file_name = "verkle-#{db_block.number}"
+  File.write "#{prestate_file_name}.dot", <<~TREEDOT
+    digraph D {
+      node [shape=rect]
+      #{tree.to_dot('', '')}
+    }
+  TREEDOT
+  system "dot -Tpng #{prestate_file_name}.dot -o #{prestate_file_name}.png"
+  File.delete "#{prestate_file_name}.dot"
+  tree_base64_png = Base64.encode64 File.read("#{prestate_file_name}.png")
+  File.delete "#{prestate_file_name}.png"
+
   markaby do
     h1 "Block #{db_block.number}"
 
@@ -121,6 +134,8 @@ get '/blocks/:number_or_hash' do
     end
 
     h2 'Verkle proof'
+
+    img src: "data:image/png;base64,#{tree_base64_png}"
 
     p "extension statuses: #{proof.esses}"
     p "depths: #{proof.depths}"
