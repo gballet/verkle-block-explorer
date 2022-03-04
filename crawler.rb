@@ -79,8 +79,9 @@ count = 0
   # save the content
   block.save
 
-  # only grab a maximum of 1000 blocks at a time
-  break if count == 700
+  # only grab a maximum of 500 blocks at a time
+  # to avoid being refused connections.
+  break if count == 500
 
   count += 1
 end
