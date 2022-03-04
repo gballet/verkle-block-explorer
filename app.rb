@@ -74,12 +74,32 @@ get '/blocks/:number_or_hash' do
   # Get the number of the last block
   last_block_num = Block.count.zero? ? 0 : Block.order('number DESC').first.number
 
-
   proof = db_block.verkle_proof
-  # Insert the values in the tree
+
+  # The list of stems
+  stems = db_block
+          .witness_keyvals
+          .map { |(key, _)| key[0, 31] }
+          .uniq
+
+  # The list of the paths to every single node in the tree
+  paths = stems
+          .zip(proof.depths)
+          .map { |(stem, depth)| depth.times.map { |i| stem[0, i + 1] } }
+          .uniq
+          .sort
+
+  # Find the list of stems that are present in the tree
+  stems_and_statuses = stems.zip(proof.esses)
+  present_stems = stems_and_statuses
+                  .filter { |(_, es)| es == VerkleProof::ExtensionStatus::PRESENT }
+                  .map { |(stem, _)| stem }
+
+  # Insert the values in the tree that correspond to a
+  # stem that is present in the tree.
   tree = Node.new(0, false, nil)
   db_block.witness_keyvals.each do |key, value|
-    tree.insert(key, value)
+    tree.insert(key, value) if present_stems.include?(key[..-2])
   end
 
   # Get the state root commitment from the
