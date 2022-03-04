@@ -6,7 +6,6 @@ require 'sinatra/reloader'
 require 'markaby'
 require 'sinatra/activerecord'
 require 'rlp-ruby'
-require 'digest/keccak'
 require 'base64'
 
 require './models/block'
@@ -156,7 +155,7 @@ get '/blocks/:number_or_hash' do
     table do
       db_block.txes.each do |tx|
         tr do
-          td Digest::Keccak.hexdigest(tx.tx_hash, 256)
+          td to_hex(tx.tx_hash.bytes)
         end
       end
     end
