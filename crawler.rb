@@ -65,13 +65,14 @@ count = 0
   request.body = req_body.to_json
   resp = http.request(request)
   raise("request failed #{resp.code.class}") if resp.code.to_i != 200
-  block.block_hash = from_hex(JSON.parse(resp.body)['result']['hash'])
+  result = JSON.parse(resp.body)['result']
+  block.block_hash = from_hex(result['hash'])
+  txs = result['transactions']
 
   # Process the transactions
-  _, txs = RLP.decoder(block.rlp.bytes)
-  txs.each do |tx_hash|
+  txs.each do |tx|
     block.txes << Tx.new do |db_tx|
-      db_tx.tx_hash = tx_hash
+      db_tx.tx_hash = from_hex(tx)
     end
   end
 

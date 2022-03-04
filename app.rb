@@ -156,7 +156,7 @@ get '/blocks/:number_or_hash' do
     table do
       db_block.txes.each do |tx|
         tr do
-          td Digest::Keccak.hexdigest(tx.map(&:chr).join(''), 256)
+          td Digest::Keccak.hexdigest(tx.tx_hash, 256)
         end
       end
     end
