@@ -63,22 +63,22 @@ class Node
     ret = ''
     if leaf?
       name = "ext_#{path}_#{to_hex @extension, true}"
-      ret += parent.empty? ? "#{parent} -> #{name}\n" : ''
+      ret += parent.empty? ? '' : "#{parent} -> #{name} [label=\"#{path[-2..-1]}\"]\n"
       ret += "#{name} [label=\"#{to_hex(@extension)} #{to_hex(@commitment)}\"]\n"
-      ret += "#{name} -> #{name}_c1\n" if @c1
-      ret += "#{name} -> #{name}_c2\n" if @c2
+      ret += "#{name}_c1 [label=\"#{to_hex(@c1)}\"]\n#{name} -> #{name}_c1 [label=\"2\"]\n" if @c1
+      ret += "#{name}_c2 [label=\"#{to_hex(@c2)}\"]\n#{name} -> #{name}_c2 [label=\"3\"]\n" if @c2
       @values.each do |suffix, value|
         ret += <<~LEAF
           val_#{path}_#{to_hex(@extension, true)}_#{suffix} [label=\"#{to_hex(value)}\"]
-          #{name}_c#{1 + suffix / 128} -> val_#{path}_#{to_hex(@extension, true)}_#{suffix}
+          #{name}_c#{1 + suffix / 128} -> val_#{path}_#{to_hex(@extension, true)}_#{suffix} [label="#{suffix}"]
         LEAF
       end
     else
       name = parent.empty? ? 'root' : "int_#{path}"
-      ret += "#{name} [label=\"#{@commitment}\"]\n"
-      ret += parent.empty? ? '' : "#{parent} -> #{name}\n"
+      ret += "#{name} [label=\"#{to_hex(@commitment)}\"]\n"
+      ret += parent.empty? ? '' : "#{parent} -> #{name} [label=\"#{path[-2..-1]}\"]\n"
       @children.each do |num, node|
-        ret += node.to_dot("#{path}#{num}", name)
+        ret += node.to_dot("#{path}#{format '%02x', num}", name)
       end
     end
     ret
