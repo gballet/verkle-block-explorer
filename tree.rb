@@ -27,19 +27,17 @@ class Node
       when VerkleProof::ExtensionStatus::PRESENT
         # Insert a new stem
         @children[child_index] = Node.new(@depth + 1, true, stem)
-        @children[child_index].insert_into_leaf(stem, stem_info, comms)
+        @children[child_index].insert_into_leaf(stem_info, comms)
       when VerkleProof::ExtensionStatus::ABSENT
         # Stem doesn't exist, leave as is
       else # OTHER
         # Insert from the missing POA stems
         @children[child_index] = Node.new(@depth + 1, true, poas.shift)
-        @children[child_index].commitment = comms.shift
         @children[child_index].insert_into_leaf(stem_info, comms)
       end
     else
       # Insert an internal node and recurse
       @children[child_index] = Node.new(@depth + 1, false, nil)
-      @children[child_index].commitment = comms.shift
       @children[child_index].insert_node(stem, stem_info, comms, poas)
     end
   end
@@ -48,34 +46,6 @@ class Node
     @commitment = comms.shift
     @c1 = comms.shift if stem_info.has_c1
     @c2 = comms.shift if stem_info.has_c2
-  end
-
-  def insert(key, value)
-    path_element = key[@depth]
-    if @children.nil? # leaf node
-      if key[@depth..30] == @extension
-        # insert into extension
-        values[key[31]] = value
-      else
-        # break into two nodes
-        old_element, *old_extension = @extension
-        @extension = nil
-        @children = { old_element => Node.new(@depth + 1, true, old_extension) }
-        @children[old_element].values = @values
-        @children[path_element] = Node.new(@depth + 1, true, key[@depth + 1..-1]) if old_element != path_element
-        @children[path_element].insert(key, value)
-        @values = nil
-      end
-    else # internal node
-      if @children.key?(path_element)
-        # existing child
-        @children[path_element].insert(key, value)
-      else
-        # create missing child
-        @children[path_element] = Node.new(@depth + 1, true, key[@depth + 1..-2])
-        @children[path_element].values[key[31]] = value
-      end
-    end
   end
 
   def leaf?

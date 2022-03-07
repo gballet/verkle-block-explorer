@@ -76,13 +76,6 @@ get '/blocks/:number_or_hash' do
 
   proof = db_block.verkle_proof
 
-  # The list of the paths to every single node in the tree
-
-  # Find the list of stems that are present in the tree
-
-  # Insert the values in the tree that correspond to a
-  # stem that is present in the tree.
-
   # Get the state root commitment from the
   # previous block
   prev_root = Block.find_by!(number: last_block_num).root

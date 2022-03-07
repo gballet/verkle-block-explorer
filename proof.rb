@@ -23,7 +23,7 @@ class VerkleProof
     end
 
     def self.from_serialized(byte)
-      new(byte >> 3, byte & 0xFF)
+      new(byte >> 3, byte & 3)
     end
   end
 
@@ -52,7 +52,8 @@ class VerkleProof
       @stem_info[key[..-2]].has_c2 |= key[-1] >= 128
     end
 
-    root = Node.new(0, false, root_comm)
+    root = Node.new(0, false, nil)
+    root.commitment = root_comm
 
     @stem_info.each { |stem, info| root.insert_node(stem, info, @comms, @poas) }
 
