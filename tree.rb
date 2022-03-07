@@ -12,6 +12,44 @@ class Node
     @extension = extension
   end
 
+  def insert_node(stem, stem_info, comms, poas)
+    child_index = key[@depth]
+
+    raise 'ext-and-suffix node should never be inserted into directly' if @children.nil?
+
+    # if the child already exists, recurse
+    return @children[child_index].insert_node(stem, stem_info, comms, poas) if @children.key?(child_index)
+
+    if @depth == stem_info.depth - 1
+      # Reached the point where the stem should be inserted (depending
+      # on the stem type, though).
+      case stem_info.ext_status
+      when VerkleProof::StemInfo::PRESENT
+        # Insert a new stem
+        @children[child_index] = new(@depth + 1, true, stem)
+        @children[child_index].insert_into_leaf(stem, stem_info, comms)
+      when VerkleProof::StemInfo::ABSENT
+        # Stem doesn't exist, leave as is
+      else # OTHER
+        # Insert from the missing POA stems
+        @children[child_index] = new(@depth + 1, true, poastems.shift)
+        @children[child_index].commitment = comms.shift
+        @children[child_index].insert_into_leaf(stem, stem_info, comms)
+      end
+    else
+      # Insert an internal node and recurse
+      @children[child_index] = new(@depth + 1, false, nil)
+      @children[child_index].commitment = comms.shift
+      @children[child_index].insert_node(stem, stem_info, comms, poas)
+    end
+  end
+
+  def insert_into_leaf(stem_info, comms)
+    @commitment = comms.shift
+    @c1 = comms.shift if stem_info.has_c1
+    @c2 = comms.shift if stem_info.has_c2
+  end
+
   def insert(key, value)
     path_element = key[@depth]
     if @children.nil? # leaf node
