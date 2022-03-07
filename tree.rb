@@ -1,6 +1,6 @@
 # Node represents a stateless node
 class Node
-  attr_reader :children, :commitment, :values, :extension
+  attr_accessor :children, :commitment, :values, :extension
 
   def initialize(depth, leaf, extension)
     if leaf
@@ -13,7 +13,7 @@ class Node
   end
 
   def insert_node(stem, stem_info, comms, poas)
-    child_index = key[@depth]
+    child_index = stem[@depth]
 
     raise 'ext-and-suffix node should never be inserted into directly' if @children.nil?
 
@@ -24,21 +24,21 @@ class Node
       # Reached the point where the stem should be inserted (depending
       # on the stem type, though).
       case stem_info.ext_status
-      when VerkleProof::StemInfo::PRESENT
+      when VerkleProof::ExtensionStatus::PRESENT
         # Insert a new stem
-        @children[child_index] = new(@depth + 1, true, stem)
+        @children[child_index] = Node.new(@depth + 1, true, stem)
         @children[child_index].insert_into_leaf(stem, stem_info, comms)
-      when VerkleProof::StemInfo::ABSENT
+      when VerkleProof::ExtensionStatus::ABSENT
         # Stem doesn't exist, leave as is
       else # OTHER
         # Insert from the missing POA stems
-        @children[child_index] = new(@depth + 1, true, poastems.shift)
+        @children[child_index] = Node.new(@depth + 1, true, poas.shift)
         @children[child_index].commitment = comms.shift
-        @children[child_index].insert_into_leaf(stem, stem_info, comms)
+        @children[child_index].insert_into_leaf(stem_info, comms)
       end
     else
       # Insert an internal node and recurse
-      @children[child_index] = new(@depth + 1, false, nil)
+      @children[child_index] = Node.new(@depth + 1, false, nil)
       @children[child_index].commitment = comms.shift
       @children[child_index].insert_node(stem, stem_info, comms, poas)
     end

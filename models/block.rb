@@ -32,7 +32,7 @@ class Block < ActiveRecord::Base
 
   def verkle_proof
     decode_rlp if @decoded_header.nil?
-    VerkleProof.parse @decoded_header[16]
+    VerkleProof.parse(@decoded_header[16], @decoded_header[17].map { |(k, _)| k })
   end
 
   def witness_keyvals

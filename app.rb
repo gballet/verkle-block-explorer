@@ -76,36 +76,17 @@ get '/blocks/:number_or_hash' do
 
   proof = db_block.verkle_proof
 
-  # The list of stems
-  stems = db_block
-          .witness_keyvals
-          .map { |(key, _)| key[0, 31] }
-          .uniq
-
   # The list of the paths to every single node in the tree
-  paths = stems
-          .zip(proof.depths)
-          .map { |(stem, depth)| depth.times.map { |i| stem[0, i + 1] } }
-          .uniq
-          .sort
 
   # Find the list of stems that are present in the tree
-  stems_and_statuses = stems.zip(proof.esses)
-  present_stems = stems_and_statuses
-                  .filter { |(_, es)| es == VerkleProof::ExtensionStatus::PRESENT }
-                  .map { |(stem, _)| stem }
 
   # Insert the values in the tree that correspond to a
   # stem that is present in the tree.
-  tree = Node.new(0, false, nil)
-  db_block.witness_keyvals.each do |key, value|
-    tree.insert(key, value) if present_stems.include?(key[..-2])
-  end
 
   # Get the state root commitment from the
   # previous block
   prev_root = Block.find_by!(number: last_block_num).root
-  tree.set_comms([prev_root] + proof.comms)
+  tree = proof.to_tree(prev_root, db_block.witness_keyvals.map { |(k, _)| k })
   prestate_file_name = "verkle-#{db_block.number}"
   File.write "#{prestate_file_name}.dot", <<~TREEDOT
     digraph D {
@@ -150,8 +131,6 @@ get '/blocks/:number_or_hash' do
 
     img src: "data:image/png;base64,#{tree_base64_png}"
 
-    p "extension statuses: #{proof.esses}"
-    p "depths: #{proof.depths}"
     p "poas: #{proof.poas}"
     p "commitments: #{proof.comms.map { |c| be_bytes c }}"
 
