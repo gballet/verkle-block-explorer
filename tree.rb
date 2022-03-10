@@ -12,10 +12,16 @@ class Node
     @extension = extension
   end
 
+  # Helper function used to rebuild the tree from a proof. It is
+  # expected to be called on an internal node, and will create all
+  # the internal nodes along the path from the root to the "extension
+  # and suffix" node. It is not concerned with inserting the values
+  # (see the insert function).
   def insert_node(stem, stem_info, comms, poas)
+    raise 'ext-and-suffix node should never be inserted into directly' if leaf?
+
     child_index = stem[@depth]
 
-    raise 'ext-and-suffix node should never be inserted into directly' if @children.nil?
 
     # if the child already exists, recurse
     return @children[child_index].insert_node(stem, stem_info, comms, poas) if @children.key?(child_index)
@@ -27,13 +33,13 @@ class Node
       when VerkleProof::ExtensionStatus::PRESENT
         # Insert a new stem
         @children[child_index] = Node.new(@depth + 1, true, stem)
-        @children[child_index].insert_into_leaf(stem_info, comms)
+        @children[child_index].insert_leaf_node(stem_info, comms)
       when VerkleProof::ExtensionStatus::ABSENT
         # Stem doesn't exist, leave as is
       else # OTHER
         # Insert from the missing POA stems
         @children[child_index] = Node.new(@depth + 1, true, poas.shift)
-        @children[child_index].insert_into_leaf(stem_info, comms)
+        @children[child_index].insert_leaf_node(stem_info, comms)
       end
     else
       # Insert an internal node and recurse
@@ -42,37 +48,8 @@ class Node
     end
   end
 
-  def insert_into_leaf(stem_info, comms)
-    @commitment = comms.shift
-    @c1 = comms.shift if stem_info.has_c1
-    @c2 = comms.shift if stem_info.has_c2
-  end
-
   def leaf?
     @children.nil?
-  end
-
-  # Associate the list of commitments from the proof, to a
-  # rebuilt tree.
-  def set_comms(comms)
-    @commitment, *rest = comms
-
-    if leaf?
-      # Associate a commitment to C1 and/or C2, if present
-      @values.keys.sort.each do |suffix|
-        # Capture the commitment of a suffix tree the
-        # first time a new value 'opens' that suffix
-        # tree.
-        @c1, *rest = rest if suffix < 128 && @c1.nil?
-        @c2, *rest = rest if suffix >= 128 && @c2.nil?
-      end
-    else
-      @children.keys.sort.each do |key|
-        # Recurse into children nodes.
-        rest = @children[key].set_comms rest
-      end
-    end
-    rest
   end
 
   def to_dot(path, parent)
@@ -112,5 +89,13 @@ class Node
     else
       to_hex(item, false).gsub(/00(0{2})+$/, '00...')
     end
+  end
+
+  protected
+
+  def insert_leaf_node(stem_info, comms)
+    @commitment = comms.shift
+    @c1 = comms.shift if stem_info.has_c1
+    @c2 = comms.shift if stem_info.has_c2
   end
 end
