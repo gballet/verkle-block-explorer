@@ -7,7 +7,7 @@ class Block < ActiveRecord::Base
 
   def root
     decode_rlp if @decoded_header.nil?
-    @decoded_header[4]
+    @decoded_header[3]
   end
 
   def coinbase
