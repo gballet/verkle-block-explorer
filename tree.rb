@@ -58,8 +58,8 @@ class Node
       name = "ext_#{path}_#{to_hex @extension, true}"
       ret += parent.empty? ? '' : "#{parent} -> #{name} [label=\"#{path[-2..-1]}\"]\n"
       ret += "#{name} [label=\"ext=#{to_hex(@extension)}\\ncomm=#{to_hex(@commitment)}\"]\n"
-      ret += "#{name}_c1 [label=\"#{to_hex(@c1)}\"]\n#{name} -> #{name}_c1 [label=\"2\"]\n" if @c1
-      ret += "#{name}_c2 [label=\"#{to_hex(@c2)}\"]\n#{name} -> #{name}_c2 [label=\"3\"]\n" if @c2
+      ret += "#{name}_c1 [label=\"#{to_hex(@c1)}\"]\n#{name} -> #{name}_c1 [label=\"𝑐₁\"]\n" if @c1
+      ret += "#{name}_c2 [label=\"#{to_hex(@c2)}\"]\n#{name} -> #{name}_c2 [label=\"𝑐₂\"]\n" if @c2
       @values.each do |suffix, value|
         ret += <<~LEAF
           val_#{path}_#{to_hex(@extension, true)}_#{suffix} [label=\"#{hex_label value}\"]
