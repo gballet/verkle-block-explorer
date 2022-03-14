@@ -12,8 +12,8 @@ class VerkleProof
   # Gather all the information about a stem, that are required
   # to rebuild a stateless tree.
   class StemInfo
-    attr_reader :depth, :ext_status,  :stem_info
     attr_accessor :has_c1, :has_c2
+    attr_reader :depth, :ext_status
 
     def initialize(depth, ext_status)
       @depth = depth
