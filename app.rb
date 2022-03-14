@@ -79,7 +79,9 @@ get '/blocks/:number_or_hash' do
   # Get the state root commitment from the
   # previous block
   prev_root = Block.find_by!(number: last_block_num).root
-  tree = proof.to_tree(prev_root, db_block.witness_keyvals.map { |(k, _)| k })
+  tree = proof.to_tree(prev_root,
+                       db_block.witness_keyvals.map { |(k, _)| k },
+                       db_block.witness_keyvals.map { |(_, v)| v })
   prestate_file_name = "verkle-#{db_block.number}"
   File.write "#{prestate_file_name}.dot", <<~TREEDOT
     digraph D {

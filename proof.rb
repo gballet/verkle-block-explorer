@@ -12,14 +12,15 @@ class VerkleProof
   # Gather all the information about a stem, that are required
   # to rebuild a stateless tree.
   class StemInfo
-    attr_accessor :has_c1, :has_c2
     attr_reader :depth, :ext_status
+    attr_accessor :has_c1, :has_c2, :values
 
     def initialize(depth, ext_status)
       @depth = depth
       @ext_status = ext_status
       @has_c1 = false
       @has_c2 = false
+      @values = {}
     end
 
     def self.from_serialized(byte)
@@ -44,12 +45,14 @@ class VerkleProof
   end
 
   # Rebuild a stateless tree from that proof. Consumes the proof data.
-  def to_tree(root_comm, keys)
+  def to_tree(root_comm, keys, values)
     # Using the keys, update @stem_info to see if C1 and C2 are
     # present.
-    keys.each do |key|
-      @stem_info[key[..-2]].has_c1 |= key[-1] < 128
-      @stem_info[key[..-2]].has_c2 |= key[-1] >= 128
+    keys.zip(values).each do |(key, value)|
+      stem = key[..-2]
+      @stem_info[stem].has_c1 |= key[-1] < 128
+      @stem_info[stem].has_c2 |= key[-1] >= 128
+      @stem_info[stem].values[key[-1]] = value
     end
 
     root = Node.new(0, false, nil)

@@ -97,5 +97,6 @@ class Node
     @commitment = comms.shift
     @c1 = comms.shift if stem_info.has_c1
     @c2 = comms.shift if stem_info.has_c2
+    @values = stem_info.values
   end
 end
