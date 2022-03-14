@@ -124,6 +124,8 @@ get '/blocks/:number_or_hash' do
 
     h2 'Verkle proof'
 
+    p 'Note: ∅ denotes a key missing from the pre-state (corresponding to a proof of absence), and 00... means that the leading 0s (in little endian form) are not printed.'
+
     img src: "data:image/png;base64,#{tree_base64_png}"
 
     p "poas: #{proof.poas}"
