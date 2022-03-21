@@ -105,7 +105,6 @@ get '/blocks/:number_or_hash' do
   markaby do
     h1 "Block #{db_block.number}"
 
-
     h2 'Header'
 
     table do
@@ -133,6 +132,8 @@ get '/blocks/:number_or_hash' do
     h2 'Verkle proof'
 
     p 'Note: ∅ denotes a key missing from the pre-state (corresponding to a proof of absence), and 00... means that the leading 0s (in little endian form) are not printed.'
+
+    h3 'Pre-state tree'
 
     img src: "data:image/png;base64,#{tree_base64_png}"
 

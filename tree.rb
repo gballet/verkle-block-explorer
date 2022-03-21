@@ -1,4 +1,6 @@
 # Node represents a stateless node
+# frozen_string_literal: true
+
 class Node
   attr_accessor :children, :commitment, :values, :extension
 
@@ -77,7 +79,7 @@ class Node
     ret
   end
 
-  def each_node path=[], &callback
+  def each_node(path = [], &callback)
     yield @commitment, path
 
     if leaf?
