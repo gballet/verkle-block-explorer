@@ -136,7 +136,16 @@ get '/blocks/:number_or_hash' do
 
     img src: "data:image/png;base64,#{tree_base64_png}"
 
-    p "poas: #{proof.poas}"
+    unless proof.poas.empty?
+      h3 'Proof of absence stems'
+
+      ul do
+        proof.poas.each do |stem|
+          li to_hex(stem)
+        end
+      end
+    end
+
     p "commitments: #{proof.comms.map { |c| be_bytes c }}"
 
     h3 '(key, value) list'
