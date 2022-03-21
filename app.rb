@@ -146,7 +146,20 @@ get '/blocks/:number_or_hash' do
       end
     end
 
-    p "commitments: #{proof.comms.map { |c| be_bytes c }}"
+    h3 'Commitments'
+
+    table do
+      tr do
+        th 'Commitment'
+        th 'Path'
+      end
+      tree.each_node do |comm, path|
+        tr do
+          td to_hex comm
+          td to_hex path
+        end
+      end
+    end
 
     h3 '(key, value) list'
 

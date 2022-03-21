@@ -77,6 +77,20 @@ class Node
     ret
   end
 
+  def each_node path=[], &callback
+    yield @commitment, path
+
+    if leaf?
+      yield @commitment, @extension
+      yield(@c1, @extension + [2]) if @c1
+      yield(@c2, @extension + [3]) if @c2
+    else
+      @children.each do |idx, child|
+        child.each_node(path + [idx], &callback)
+      end
+    end
+  end
+
   private
 
   # displays a label containing a hex number, and perform
