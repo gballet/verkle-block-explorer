@@ -158,7 +158,7 @@ get '/blocks/:number_or_hash' do
       db_block.witness_keyvals.each do |(key, value)|
         tr do
           td to_hex(key)
-          td le_bytes(value)
+          td to_hex(value)
         end
       end
     end
