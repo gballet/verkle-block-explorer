@@ -2,7 +2,7 @@
 # frozen_string_literal: true
 
 require 'sinatra'
-require 'sinatra/reloader'
+require 'sinatra/reloader' if development?
 require 'markaby'
 require 'sinatra/activerecord'
 require 'rlp-ruby'
@@ -14,6 +14,14 @@ require './models/tx'
 require './proof'
 require './utils'
 require './tree'
+
+if development?
+  also_reload './models/block.rb'
+  also_reload './models/tx.rb'
+  also_reload './proof.rb'
+  also_reload './tree.rb'
+  also_reload './utils.rb'
+end
 
 cfg = YAML.load(File.read('config.yml'))
 
