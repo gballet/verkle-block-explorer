@@ -4,8 +4,13 @@ A feature-poor ethereum block explorer dedicated to verkle trees. This isn't pro
 
 ## Installation
 
- * Make sure that ruby and bundler are available on your system
- * Clone the repository and install the depenencies:
+ * Make sure that ruby, bundler and graphviz are available on your system. For example, on ubuntu:
+
+```
+> sudo apt update && sudo apt-get -y ruby bundler graphviz
+```
+
+ * Clone the repository and install the dependencies:
 
 ```
 > git clone https://github.com/gballet/verkle-block-explorer
@@ -31,7 +36,7 @@ cd <path_to_the_cloned_repo> && bundle exec ./crawler.rb
 ## Running the block explorer
 
 ```
-> bundle exec ./app.rb
+> bundle exec ./app.rb -o 0.0.0.0
 ```
 
 The block explorer is now reachable at `http://localhost:4567`
