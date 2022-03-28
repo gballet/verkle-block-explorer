@@ -50,10 +50,7 @@ class Node
     end
   end
 
-  def leaf?
-    @children.nil?
-  end
-
+  # Render the tree as a graphviz file
   def to_dot(path, parent)
     ret = ''
     if leaf?
@@ -105,6 +102,10 @@ class Node
     else
       to_hex(item, false).gsub(/00(0{2})+$/, '00...')
     end
+  end
+
+  def leaf?
+    @children.nil?
   end
 
   protected

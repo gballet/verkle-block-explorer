@@ -65,6 +65,21 @@ get '/' do
   end
 end
 
+def generate_prestate_png(tree, number)
+  prestate_file_name = "verkle-#{number}"
+  File.write "#{prestate_file_name}.dot", <<~TREEDOT
+    digraph D {
+      node [shape=rect]
+      #{tree.to_dot('', '')}
+    }
+  TREEDOT
+  system "dot -Tpng #{prestate_file_name}.dot -o #{prestate_file_name}.png"
+  File.delete "#{prestate_file_name}.dot"
+  tree_base64_png = Base64.encode64 File.read("#{prestate_file_name}.png")
+  File.delete "#{prestate_file_name}.png"
+  tree_base64_png
+end
+
 # Show a block
 get '/blocks/:number_or_hash' do
   db_block = case params[:number_or_hash]
@@ -90,17 +105,7 @@ get '/blocks/:number_or_hash' do
   tree = proof.to_tree(prev_root,
                        db_block.witness_keyvals.map { |(k, _)| k },
                        db_block.witness_keyvals.map { |(_, v)| v })
-  prestate_file_name = "verkle-#{db_block.number}"
-  File.write "#{prestate_file_name}.dot", <<~TREEDOT
-    digraph D {
-      node [shape=rect]
-      #{tree.to_dot('', '')}
-    }
-  TREEDOT
-  system "dot -Tpng #{prestate_file_name}.dot -o #{prestate_file_name}.png"
-  File.delete "#{prestate_file_name}.dot"
-  tree_base64_png = Base64.encode64 File.read("#{prestate_file_name}.png")
-  File.delete "#{prestate_file_name}.png"
+  tree_base64_png = generate_prestate_png(tree, db_block.number)
 
   markaby do
     h1 "Block #{db_block.number}"
