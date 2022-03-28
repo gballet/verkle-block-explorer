@@ -22,3 +22,4 @@ tmp
 .byebug_history
 db/explorer.sqlite
 vendor
+config.yml
