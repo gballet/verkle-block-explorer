@@ -20,7 +20,15 @@ class Node
   # and suffix" node. It is not concerned with inserting the values
   # (see the insert function).
   def insert_node(stem, stem_info, comms, poas)
-    raise 'ext-and-suffix node should never be inserted into directly' if leaf?
+    if leaf?
+      # Inserting into a leaf. This could be due to a proof of absence
+      # insertion into a stem that already exists.
+      return if poas.include?(@extension) &&
+                stem_info.ext_status == VerkleProof::ExtensionStatus::OTHER &&
+                stem_info.depth == @depth
+
+      raise 'ext-and-suffix node should never be inserted into directly' 
+    end
 
     child_index = stem[@depth]
 
