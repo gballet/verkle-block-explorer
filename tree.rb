@@ -24,7 +24,6 @@ class Node
 
     child_index = stem[@depth]
 
-
     # if the child already exists, recurse
     return @children[child_index].insert_node(stem, stem_info, comms, poas) if @children.key?(child_index)
 
@@ -46,6 +45,7 @@ class Node
     else
       # Insert an internal node and recurse
       @children[child_index] = Node.new(@depth + 1, false, nil)
+      @children[child_index].commitment = comms.shift
       @children[child_index].insert_node(stem, stem_info, comms, poas)
     end
   end
