@@ -23,7 +23,7 @@ if development?
   also_reload './utils.rb'
 end
 
-cfg = YAML.load(File.read('config.yml'))
+cfg = YAML.safe_load(File.read('config.yml'))
 
 def le_bytes(ary)
   be_bytes ary.reverse

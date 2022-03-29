@@ -1,6 +1,8 @@
 # Node represents a stateless node
 # frozen_string_literal: true
 
+# Represent a node in the tree. Both branch nodes and 'extension' nodes can
+# be represented by objects of this class.
 class Node
   attr_accessor :children, :commitment, :values, :extension
 
@@ -27,7 +29,7 @@ class Node
                 stem_info.ext_status == VerkleProof::ExtensionStatus::OTHER &&
                 stem_info.depth == @depth
 
-      raise 'ext-and-suffix node should never be inserted into directly' 
+      raise 'ext-and-suffix node should never be inserted into directly'
     end
 
     child_index = stem[@depth]
@@ -60,30 +62,21 @@ class Node
 
   # Render the tree as a graphviz file
   def to_dot(path, parent)
-    ret = ''
-    if leaf?
-      name = "ext_#{path}_#{to_hex @extension, true}"
-      ret += parent.empty? ? '' : "#{parent} -> #{name} [label=\"#{path[-2..-1]}\"]\n"
-      ret += "#{name} [label=\"ext=#{to_hex(@extension)}\\ncomm=#{to_hex(@commitment)}\"]\n"
-      ret += "#{name}_c1 [label=\"#{to_hex(@c1)}\"]\n#{name} -> #{name}_c1 [label=\"𝑐₁\"]\n" if @c1
-      ret += "#{name}_c2 [label=\"#{to_hex(@c2)}\"]\n#{name} -> #{name}_c2 [label=\"𝑐₂\"]\n" if @c2
-      @values.each do |suffix, value|
-        ret += <<~LEAF
-          val_#{path}_#{to_hex(@extension, true)}_#{suffix} [label=\"#{hex_label value}\"]
-          #{name}_c#{1 + suffix / 128} -> val_#{path}_#{to_hex(@extension, true)}_#{suffix} [label="#{suffix}"]
-        LEAF
-      end
-    else
-      name = parent.empty? ? 'root' : "int_#{path}"
-      ret += "#{name} [label=\"#{to_hex(@commitment)}\"]\n"
-      ret += parent.empty? ? '' : "#{parent} -> #{name} [label=\"#{path[-2..-1]}\"]\n"
-      @children.each do |num, node|
-        ret += node.to_dot("#{path}#{format '%02x', num}", name)
-      end
+    return to_dot_leaf(path, parent) if leaf?
+
+    name = parent.empty? ? 'root' : "int_#{path}"
+    ret = "#{name} [label=\"#{to_hex(@commitment)}\"]\n"
+    ret += parent.empty? ? '' : "#{parent} -> #{name} [label=\"#{path[-2..-1]}\"]\n"
+    @children.each do |num, node|
+      ret += node.to_dot("#{path}#{format '%02x', num}", name)
     end
     ret
   end
 
+  # Iterate over each node, depth-first, and yields for each
+  # commitment found. This means that internal nodes yield once
+  # however extension nodes yield between once and three times,
+  # depending on the presence of subtrees c1 and c2.
   def each_node(path = [], &callback)
     yield @commitment, path
 
@@ -114,6 +107,21 @@ class Node
 
   def leaf?
     @children.nil?
+  end
+
+  def to_dot_leaf(path, parent)
+    name = "ext_#{path}_#{to_hex @extension, true}"
+    ret = parent.empty? ? '' : "#{parent} -> #{name} [label=\"#{path[-2..-1]}\"]\n"
+    ret += "#{name} [label=\"ext=#{to_hex(@extension)}\\ncomm=#{to_hex(@commitment)}\"]\n"
+    ret += "#{name}_c1 [label=\"#{to_hex(@c1)}\"]\n#{name} -> #{name}_c1 [label=\"𝑐₁\"]\n" if @c1
+    ret += "#{name}_c2 [label=\"#{to_hex(@c2)}\"]\n#{name} -> #{name}_c2 [label=\"𝑐₂\"]\n" if @c2
+    @values.each do |suffix, value|
+      ret += <<~LEAF
+        val_#{path}_#{to_hex(@extension, true)}_#{suffix} [label=\"#{hex_label value}\"]
+        #{name}_c#{1 + suffix / 128} -> val_#{path}_#{to_hex(@extension, true)}_#{suffix} [label="#{suffix}"]
+      LEAF
+    end
+    ret
   end
 
   protected
