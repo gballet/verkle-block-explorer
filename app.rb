@@ -102,10 +102,16 @@ get '/blocks/:number_or_hash' do
   # Get the state root commitment from the
   # previous block
   prev_root = Block.find_by!(number: last_block_num).root
-  tree = proof.to_tree(prev_root,
-                       db_block.witness_keyvals.map { |(k, _)| k },
-                       db_block.witness_keyvals.map { |(_, v)| v })
-  tree_base64_png = generate_prestate_png(tree, db_block.number)
+  tree_base64_png = ''
+  tree_rendering_error = nil
+  begin
+    tree = proof.to_tree(prev_root,
+                         db_block.witness_keyvals.map { |(k, _)| k },
+                         db_block.witness_keyvals.map { |(_, v)| v })
+    tree_base64_png = generate_prestate_png(tree, db_block.number)
+  rescue => e
+    tree_rendering_error = e
+  end
 
   markaby do
     h1 "Block #{db_block.number}"
@@ -141,7 +147,11 @@ get '/blocks/:number_or_hash' do
     p 'Note: ∅ denotes a key missing from the pre-state (corresponding to a proof of absence),'\
     ' and 00... means that the leading 0s (in little endian form) are not printed.'
 
-    img src: "data:image/png;base64,#{tree_base64_png}"
+    if tree_rendering_error.nil?
+      img src: "data:image/png;base64,#{tree_base64_png}"
+    else
+      p "error rendering tree: #{tree_rendering_error.inspect}"
+    end
 
     unless proof.poas.empty?
       h3 'Proof of absence stems'
@@ -165,7 +175,7 @@ get '/blocks/:number_or_hash' do
           td to_hex comm
           td to_hex path
         end
-      end
+      end if tree_rendering_error.nil?
     end
 
     h3 '(key, value) list'
