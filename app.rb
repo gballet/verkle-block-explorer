@@ -80,8 +80,7 @@ def generate_prestate_png(tree, number)
   tree_base64_png
 end
 
-# Show a block
-get '/blocks/:number_or_hash' do
+def get_block(params)
   db_block = case params[:number_or_hash]
              when /[a-fA-F0-9]{64}/ # Block hash
                Block.find_by(block_hash: from_hex(params[:number_or_hash]))
@@ -92,6 +91,12 @@ get '/blocks/:number_or_hash' do
              end
   raise Sinatra::NotFound if db_block.nil?
 
+  db_block
+end
+
+# Show a block
+get '/blocks/:number_or_hash' do
+  db_block = get_block(params)
   db_block.txes.load
 
   # Get the number of the last block
