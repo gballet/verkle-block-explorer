@@ -119,6 +119,12 @@ get '/blocks/:number_or_hash' do
   end
 
   markaby do
+    a "< Block #{db_block.number - 1}", href: "/blocks/#{db_block.number - 1}" if db_block.number.positive?
+    span ' | '
+    a 'Home', href: '/'
+    span ' | '
+    a "Block #{db_block.number + 1} >", href: "/blocks/#{db_block.number + 1}" if db_block.number < last_block_num
+
     h1 "Block #{db_block.number}"
 
     h2 'Header'
