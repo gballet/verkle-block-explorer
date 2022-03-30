@@ -127,7 +127,7 @@ get '/blocks/:number_or_hash' do
 
     h1 "Block #{db_block.number}"
 
-    a "download raw block", href: "/blocks/#{to_hex db_block.parent_hash}/download"
+    a "download raw block", href: "/blocks/#{db_block.number}/download"
 
     h2 'Header'
 
