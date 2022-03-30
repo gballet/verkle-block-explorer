@@ -40,6 +40,10 @@ class Block < ActiveRecord::Base
     @decoded_header[17]
   end
 
+  def raw_rlp
+    rlp.bytes
+  end
+
   private
 
   def decode_rlp

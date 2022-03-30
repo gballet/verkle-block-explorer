@@ -127,6 +127,8 @@ get '/blocks/:number_or_hash' do
 
     h1 "Block #{db_block.number}"
 
+    a "download raw block", href: "/blocks/#{to_hex db_block.parent_hash}/download"
+
     h2 'Header'
 
     table do
@@ -213,13 +215,14 @@ get '/blocks/:number_or_hash' do
         end
       end
     end
-
-    a "< Block #{db_block.number - 1}", href: "/blocks/#{db_block.number - 1}" if db_block.number.positive?
-    span ' | '
-    a 'Home', href: '/'
-    span ' | '
-    a "Block #{db_block.number + 1} >", href: "/blocks/#{db_block.number + 1}" if db_block.number < last_block_num
   end
+end
+
+get '/blocks/:number_or_hash/download' do
+  block = get_block(params)
+  content_type 'application/octet-stream'
+  headers['Content-disposition'] = "attachment;filename=block_#{block.number}.rlp"
+  block.raw_rlp.map(&:chr).join
 end
 
 post '/search' do
