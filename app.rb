@@ -106,7 +106,7 @@ get '/blocks/:number_or_hash' do
 
   # Get the state root commitment from the
   # previous block
-  prev_root = Block.find_by!(number: last_block_num).root
+  prev_root = Block.find_by!(number: db_block.number - 1).root
   tree_base64_png = ''
   tree_rendering_error = nil
   begin
