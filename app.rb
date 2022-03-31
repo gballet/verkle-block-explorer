@@ -228,3 +228,25 @@ end
 post '/search' do
   redirect "/blocks/#{params['searchterm']}"
 end
+
+get '/chain/unverified' do
+  blocks = Block.where('rust_verified IS NULL OR tree_verified IS NULL')
+  puts blocks
+
+  markaby {
+    table do
+      tr do
+        th 'Number'
+        th 'rust-verkle verified?'
+        th 'picture generated?'
+      end
+      blocks.each do |block|
+        tr do
+          td { a block.number, href: "/blocks/#{block.number}" }
+          td block.rust_verified ? '✔️' : '❌'
+          td block.tree_verified ? '✔️' : '❌'
+        end
+      end
+    end
+  }
+end
