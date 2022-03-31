@@ -161,7 +161,7 @@ get '/blocks/:number_or_hash' do
     ' and 00... means that the leading 0s (in little endian form) are not printed.'
 
     if tree_rendering_error.nil?
-      img src: "data:image/png;base64,#{tree_base64_png}"
+      img src: "data:image/png;base64,#{tree_base64_png}", width: '100%'
     else
       p "error rendering tree: #{tree_rendering_error.inspect}"
     end
