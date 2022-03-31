@@ -50,7 +50,7 @@ class Node
       else # OTHER
         # Insert from the missing POA stems
         @children[child_index] = Node.new(@depth + 1, true, poas.shift)
-        @children[child_index].insert_leaf_node(stem_info, comms)
+        @children[child_index].insert_poa_node(comms)
       end
     else
       # Insert an internal node and recurse
@@ -131,5 +131,9 @@ class Node
     @c1 = comms.shift if stem_info.has_c1
     @c2 = comms.shift if stem_info.has_c2
     @values = stem_info.values
+  end
+
+  def insert_poa_node(comms)
+    @commitment = comms.shift
   end
 end
