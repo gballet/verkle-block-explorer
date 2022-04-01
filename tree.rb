@@ -78,13 +78,12 @@ class Node
   # however extension nodes yield between once and three times,
   # depending on the presence of subtrees c1 and c2.
   def each_node(path = [], &callback)
-    yield @commitment, path
-
     if leaf?
       yield @commitment, @extension
       yield(@c1, @extension + [2]) if @c1
       yield(@c2, @extension + [3]) if @c2
     else
+      yield @commitment, path
       @children.each do |idx, child|
         child.each_node(path + [idx], &callback)
       end
