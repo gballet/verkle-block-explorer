@@ -10,11 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_03_03_144059) do
+ActiveRecord::Schema[7.0].define(version: 2022_03_31_143940) do
   create_table "blocks", force: :cascade do |t|
     t.integer "number"
     t.binary "rlp"
     t.binary "block_hash"
+    t.boolean "rust_verified"
+    t.boolean "tree_verified"
   end
 
   create_table "txes", force: :cascade do |t|
