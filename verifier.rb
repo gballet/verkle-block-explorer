@@ -13,6 +13,12 @@ require './models/tx'
 require './utils'
 require './proof'
 
+def log_errors?
+  ARGV[0] == '--log'
+end
+
+log = File.open('log.txt', 'w+') if log_errors?
+
 # Get the latest block found
 last_block_num = Block.count.zero? ? 0 : Block.order('number DESC').first.number
 
@@ -42,9 +48,12 @@ last_state_root = '0'
                   block.witness_keyvals.map { |(k, _)| k },
                   block.witness_keyvals.map { |(_, v)| v })
     block.tree_verified = true
-  rescue
+  rescue => e
+    log.puts "#{block.number} #{e}" if log_errors?
     block.tree_verified = false
   end
 
   block.save!
 end
+
+log.close if log_errors?
