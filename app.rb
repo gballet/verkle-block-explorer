@@ -25,18 +25,6 @@ end
 
 cfg = YAML.safe_load(File.read('config.yml'))
 
-def le_bytes(ary)
-  be_bytes ary.reverse
-end
-
-def be_bytes(ary)
-  ary.reduce(0) do |a, b|
-    a *= 256
-    a += b
-    a
-  end
-end
-
 # Home page
 get '/' do
   last_blocks = Block.order('number DESC').limit(10)
