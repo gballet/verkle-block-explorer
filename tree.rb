@@ -28,6 +28,7 @@ class Node
       return if poas.include?(@extension) &&
                 stem_info.ext_status == VerkleProof::ExtensionStatus::OTHER &&
                 stem_info.depth == @depth
+      return if stem == @extension
 
       raise 'ext-and-suffix node should never be inserted into directly'
     end

@@ -37,19 +37,29 @@ class VerkleProof
             .map { |key| key[0, 31] }
             .uniq
 
-    # Associate stems and its info into a hash table
-    @stem_info = esses.map(&StemInfo.method(:from_serialized))
-                      .zip(stems)
-                      .map(&:reverse)
-                      .to_h
+    @stem_info = {}
+    stem_index = 0
+    esses.map(&StemInfo.method(:from_serialized)).each do |info|
+      path = stems[stem_index][..info.depth]
+      @stem_info[stems[stem_index]] = info
+      stem_index += 1 # move to next stem
+      stem_index += 1 while stem_index < stems.length && path == stems[stem_index][..info.depth]
+    end
   end
 
   # Rebuild a stateless tree from that proof. Consumes the proof data.
   def to_tree(root_comm, keys, values)
+    puts "ici #{@stem_info[nil].inspect}"
+    puts @stem_info.inspect
+    puts keys.inspect
+    puts values.inspect
     # Using the keys, update @stem_info to see if C1 and C2 are
     # present.
+    puts keys.length
+    puts values.length
     keys.zip(values).each do |(key, value)|
       stem = key[..-2]
+      puts "adding stem info for stem #{stem.inspect}"
       @stem_info[stem].has_c1 |= key[-1] < 128
       @stem_info[stem].has_c2 |= key[-1] >= 128
       @stem_info[stem].values[key[-1]] = value
