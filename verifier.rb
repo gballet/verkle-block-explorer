@@ -34,7 +34,7 @@ last_state_root = '0'
   File.write filename, block.raw_rlp.map(&:chr).join
 
   puts "verifying block #{bnum} with root #{last_state_root}"
-  system "verkle-block-sample -f #{filename} -p #{last_state_root[2,]} 2> /dev/null"
+  system "./verkle-block-sample -f #{filename} -p #{last_state_root[2..]}"
   block.rust_verified = $? == 0
 
   last_state_root = to_hex block.root
