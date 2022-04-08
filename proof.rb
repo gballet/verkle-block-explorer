@@ -38,18 +38,24 @@ class VerkleProof
             .uniq
 
     @stem_info = {}
+    @stem_to_path = {}
     stem_index = 0
     esses.map(&StemInfo.method(:from_serialized)).each do |info|
-      path = stems[stem_index][..info.depth]
-      @stem_info[stems[stem_index]] = info
+      path = stems[stem_index][...info.depth]
+      @stem_to_path[stems[stem_index]] = path
+      @stem_info[path] = info
       stem_index += 1 # move to next stem
-      stem_index += 1 while stem_index < stems.length && path == stems[stem_index][..info.depth]
+      while stem_index < stems.length && path == stems[stem_index][...info.depth]
+        @stem_to_path[stems[stem_index]] = path
+        stem_index += 1 
+      end
     end
+
+    raise 'error deserializing proof' if @stem_info.has_key?(nil)
   end
 
   # Rebuild a stateless tree from that proof. Consumes the proof data.
   def to_tree(root_comm, keys, values)
-    puts "ici #{@stem_info[nil].inspect}"
     puts @stem_info.inspect
     puts keys.inspect
     puts values.inspect
@@ -60,9 +66,9 @@ class VerkleProof
     keys.zip(values).each do |(key, value)|
       stem = key[..-2]
       puts "adding stem info for stem #{stem.inspect}"
-      @stem_info[stem].has_c1 |= key[-1] < 128
-      @stem_info[stem].has_c2 |= key[-1] >= 128
-      @stem_info[stem].values[key[-1]] = value
+      @stem_info[@stem_to_path[stem]].has_c1 |= key[-1] < 128
+      @stem_info[@stem_to_path[stem]].has_c2 |= key[-1] >= 128
+      @stem_info[@stem_to_path[stem]].values[key[-1]] = value
     end
 
     root = Node.new(0, false, nil)
