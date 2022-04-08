@@ -22,7 +22,7 @@ log = File.open('log.txt', 'w+') if log_errors?
 # Get the latest block found
 last_block_num = Block.count.zero? ? 0 : Block.order('number DESC').first.number
 
-last_state_root = '0'
+last_state_root = '0x00'
 
 (1..last_block_num).each do |bnum|
   next if bnum.zero?
