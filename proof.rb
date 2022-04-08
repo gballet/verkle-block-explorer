@@ -13,7 +13,7 @@ class VerkleProof
   # to rebuild a stateless tree.
   class StemInfo
     attr_reader :depth, :ext_status
-    attr_accessor :has_c1, :has_c2, :values
+    attr_accessor :has_c1, :has_c2, :values, :stem
 
     def initialize(depth, ext_status)
       @depth = depth
@@ -63,18 +63,38 @@ class VerkleProof
     # present.
     puts keys.length
     puts values.length
+    last_poa = 0
     keys.zip(values).each do |(key, value)|
       stem = key[..-2]
       puts "adding stem info for stem #{stem.inspect}"
       @stem_info[@stem_to_path[stem]].has_c1 |= key[-1] < 128
       @stem_info[@stem_to_path[stem]].has_c2 |= key[-1] >= 128
       @stem_info[@stem_to_path[stem]].values[key[-1]] = value
+
+      # assign the right stem to the info stem's variable
+      case @stem_info[@stem_to_path[stem]].ext_status
+      when VerkleProof::ExtensionStatus::PRESENT
+        # multiple values can have the same stem, but
+        # only one stem is present - the other are missing.
+        if @stem_info[@stem_to_path[stem]].stem.nil? && !value.nil?
+          @stem_info[@stem_to_path[stem]].stem = key[..-2]
+        end
+      when VerkleProof::ExtensionStatus::OTHER
+        @stem_info[@stem_to_path[stem]].stem = @poas[last_poa]
+        last_poa += 1
+      else
+        # the stem is needed as a path into the tree, but
+        # the current key can be used.
+        @stem_info[@stem_to_path[stem]].stem = key
+      end
     end
 
     root = Node.new(0, false, nil)
     root.commitment = root_comm
 
-    @stem_info.each { |stem, info| root.insert_node(stem, info, @comms, @poas) }
+    @stem_info.each do |_, info|
+      root.insert_node(info.stem, info, @comms, @poas)
+    end
 
     root
   end
