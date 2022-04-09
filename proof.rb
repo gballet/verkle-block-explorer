@@ -71,6 +71,10 @@ class VerkleProof
       @stem_info[@stem_to_path[stem]].has_c2 |= key[-1] >= 128
       @stem_info[@stem_to_path[stem]].values[key[-1]] = value
 
+      # skip stem assignment if multiple keys already have
+      # the same stem assigned.
+      next unless @stem_info[@stem_to_path[stem]].stem.nil?
+
       # assign the right stem to the info stem's variable
       case @stem_info[@stem_to_path[stem]].ext_status
       when VerkleProof::ExtensionStatus::PRESENT
