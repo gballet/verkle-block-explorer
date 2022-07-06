@@ -14,10 +14,10 @@ require './utils'
 require './proof'
 
 def log_errors?
-  ARGV[0] == '--log'
+  ARGV.include? '--log'
 end
 
-log = File.open('log.txt', 'w+') if log_errors?
+log = File.open('log.txt', 'a+') if log_errors?
 
 # Get the latest block found
 last_block_num = Block.count.zero? ? 0 : Block.order('number DESC').first.number
