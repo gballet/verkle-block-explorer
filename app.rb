@@ -218,7 +218,7 @@ post '/search' do
 end
 
 get '/chain/unverified' do
-  blocks = Block.where('rust_verified IS NULL OR tree_verified IS NULL')
+  blocks = Block.where('rust_verified != 1 OR tree_verified != 1')
   puts blocks
 
   markaby {
