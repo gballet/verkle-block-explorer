@@ -80,7 +80,7 @@ class VerkleProof
       when VerkleProof::ExtensionStatus::PRESENT
         # multiple values can have the same stem, but
         # only one stem is present - the other are missing.
-        if @stem_info[@stem_to_path[stem]].stem.nil? && !value.nil?
+        if @stem_info[@stem_to_path[stem]].stem.nil? && !(value.nil? || value.length == 0)
           @stem_info[@stem_to_path[stem]].stem = key[..-2]
         end
       when VerkleProof::ExtensionStatus::OTHER
