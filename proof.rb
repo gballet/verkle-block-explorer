@@ -57,16 +57,13 @@ class VerkleProof
   # Rebuild a stateless tree from that proof. Consumes the proof data.
   def to_tree(root_comm, keys, values)
     puts @stem_info.inspect
-    puts keys.inspect
-    puts values.inspect
+    puts keys.zip(values).inspect
     # Using the keys, update @stem_info to see if C1 and C2 are
     # present.
-    puts keys.length
-    puts values.length
     last_poa = 0
     keys.zip(values).each do |(key, value)|
       stem = key[..-2]
-      puts "adding stem info for stem #{stem.inspect}"
+      puts "adding stem info for stem #{stem.inspect} #{value}"
       @stem_info[@stem_to_path[stem]].has_c1 |= key[-1] < 128
       @stem_info[@stem_to_path[stem]].has_c2 |= key[-1] >= 128
       @stem_info[@stem_to_path[stem]].values[key[-1]] = value

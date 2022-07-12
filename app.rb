@@ -218,7 +218,7 @@ post '/search' do
 end
 
 get '/chain/unverified' do
-  blocks = Block.where('rust_verified != 1 OR tree_verified != 1')
+  blocks = Block.where('rust_verified != 1 OR tree_verified != 1 OR go_verified != 1')
   puts blocks
 
   markaby {
@@ -227,12 +227,14 @@ get '/chain/unverified' do
         th 'Number'
         th 'rust-verkle verified?'
         th 'picture generated?'
+        th 'go-verkle verified?'
       end
       blocks.each do |block|
         tr do
           td { a block.number, href: "/blocks/#{block.number}" }
           td block.rust_verified ? '✔️' : '❌'
           td block.tree_verified ? '✔️' : '❌'
+          td block.go_verified ? '✔️' : '❌'
         end
       end
     end

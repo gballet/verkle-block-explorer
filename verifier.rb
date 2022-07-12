@@ -41,6 +41,13 @@ last_state_root = '0x00'
     log.puts output
   end
 
+  output = `./verkle #{filename} #{last_state_root[2..]}`
+  block.go_verified = $? == 0
+  if !block.go_verified && log_errors?
+    log.puts "./verkle #{filename} #{last_state_root[2..]}"
+    log.puts output
+  end
+
   last_state_root = to_hex block.root
 
   File.delete filename
