@@ -30,6 +30,8 @@ get '/' do
   last_blocks = Block.order('number DESC').limit(10)
 
   markaby do
+    a "Unverified blocks", href: "/chain/unverified"
+
     h1 "#{cfg['network_name'].capitalize} block explorer"
 
     form action: 'search', method: 'POST' do
@@ -222,7 +224,9 @@ get '/chain/unverified' do
   puts blocks
 
   markaby {
-    table do
+    h1 "List of blocks that could not be verified"
+
+    table border: 1 do
       tr do
         th 'Number'
         th 'rust-verkle verified?'
