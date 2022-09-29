@@ -1,5 +1,5 @@
 ---
 adapter: sqlite3
-database: db/explorer.sqlite
+database: run/explorer.sqlite
 pool: 5
 timeout: 5000
