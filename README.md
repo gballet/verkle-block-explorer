@@ -16,6 +16,13 @@ A feature-poor ethereum block explorer dedicated to verkle trees. This isn't pro
 > git clone https://github.com/gballet/verkle-block-explorer
 > cd verkle-block-explorer
 > bundle install
+```
+
+  * **IF YOU NOT HAVE WRITE ACCESS TO `/run`**, you must edit `config/database.yml` and give a
+path that this user has write access to, e.g. `./run`.
+ * Create the database:
+
+```
 > bundle exec rake db:migrate
 ```
 
