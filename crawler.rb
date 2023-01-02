@@ -21,7 +21,7 @@ request = Net::HTTP::Post.new(uri.request_uri,
 request.body = '{"method":"eth_blockNumber","params":[],"id":1,"jsonrpc":"2.0"}'
 resp = http.request(request)
 
-raise("request failed #{resp.code.class}") if resp.code.to_i != 200
+raise("request failed #{resp.code}") if resp.code.to_i != 200
 
 data = JSON.parse(resp.body)
 num = data['result'].hex
