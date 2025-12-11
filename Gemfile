@@ -10,15 +10,15 @@ gem "sinatra", "~> 4.1"
 gem "sinatra-contrib", "~> 4.1"
 gem "sinatra-activerecord", "~> 2.0"
 
-gem "thin", "~> 2.0"
 gem "rackup", "~> 2.2"
 gem "rake", "~> 13.0"
 gem "markaby", "~> 0.9.0"
 
-gem "sqlite3", "~> 1.4"
+gem "sqlite3", ">= 2.1"
 
 group :development, optional: true do
   gem 'irb', '~> 1.4', require: false
 end
 
 gem "digest-keccak", "~> 0.0.5"
+gem "puma"
