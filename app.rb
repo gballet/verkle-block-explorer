@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+Fixnum = Integer unless defined?(Fixnum)
+
 require 'sinatra'
 require 'sinatra/reloader' if development?
 require 'markaby'
